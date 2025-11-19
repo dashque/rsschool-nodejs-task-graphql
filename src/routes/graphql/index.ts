@@ -16,9 +16,12 @@ const schema = new GraphQLSchema({
     fields: {
       memberTypes: {
         type: new GraphQLNonNull(new GraphQLList(MemberType)),
-        resolve: (parent, _, ctx) => ctx.prisma.memberType.findMany(),
+        resolve: async (source, _, ctx) => ctx.prisma.memberType.findMany(),
       },
-      users: { type: new GraphQLNonNull(new GraphQLList(User)) },
+      users: {
+        type: new GraphQLNonNull(new GraphQLList(User)),
+        resolve: async (source, _, ctx) => ctx.prisma.user.findMany(),
+      },
     },
   }),
 });
