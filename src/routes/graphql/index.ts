@@ -9,6 +9,7 @@ import {
 } from 'graphql';
 import { MemberType } from './types/member.type.js';
 import { User } from './types/user.type.js';
+import { Post } from './types/post.type.js';
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -21,6 +22,10 @@ const schema = new GraphQLSchema({
       users: {
         type: new GraphQLNonNull(new GraphQLList(User)),
         resolve: async (source, _, ctx) => ctx.prisma.user.findMany(),
+      },
+      posts: {
+        type: new GraphQLNonNull(new GraphQLList(Post)),
+        resolve: async (source, _, ctx) => ctx.prisma.post.findMany(),
       },
     },
   }),
