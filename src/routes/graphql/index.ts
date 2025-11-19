@@ -22,7 +22,7 @@ const schema = new GraphQLSchema({
         resolve: async (source, _, ctx) => ctx.prisma.memberType.findMany(),
       },
       memberType: {
-        type: new GraphQLNonNull(MemberType),
+        type: MemberType,
         args: {
           id: { type: new GraphQLNonNull(MemberTypeId) },
         },
@@ -34,7 +34,7 @@ const schema = new GraphQLSchema({
         resolve: async (source, _, ctx) => ctx.prisma.user.findMany(),
       },
       user: {
-        type: new GraphQLNonNull(User),
+        type: User,
         args: {
           id: { type: new GraphQLNonNull(UUIDType) },
         },
@@ -47,7 +47,7 @@ const schema = new GraphQLSchema({
         resolve: async (source, _, ctx) => ctx.prisma.post.findMany(),
       },
       post: {
-        type: new GraphQLNonNull(Post),
+        type: Post,
         args: {
           id: { type: new GraphQLNonNull(UUIDType) },
         },
@@ -59,7 +59,7 @@ const schema = new GraphQLSchema({
         resolve: async (source, _, ctx) => ctx.prisma.profile.findMany(),
       },
       profile: {
-        type: new GraphQLNonNull(Profile),
+        type: Profile,
         args: {
           id: { type: new GraphQLNonNull(UUIDType) },
         },
