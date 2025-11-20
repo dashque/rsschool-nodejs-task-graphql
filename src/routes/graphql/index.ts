@@ -6,6 +6,7 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
+  GraphQLString,
 } from 'graphql';
 import { MemberType, MemberTypeId } from './types/member.type.js';
 import { changeUserInput, createUserInput, User } from './types/user.type.js';
@@ -41,7 +42,6 @@ const schema = new GraphQLSchema({
         resolve: async (source, { id }, { prisma }) =>
           prisma.user.findUnique({ where: { id } }),
       },
-
       posts: {
         type: new GraphQLNonNull(new GraphQLList(Post)),
         resolve: async (source, _, { prisma }) => prisma.post.findMany(),
@@ -108,7 +108,7 @@ const schema = new GraphQLSchema({
           dto: { type: new GraphQLNonNull(changeProfileInput) },
         },
         resolve: async (_, { id, dto }, { prisma }) =>
-          prisma.profile.update({ where: id, data: dto }),
+          prisma.profile.update({ where: { id }, data: dto }),
       },
       changeUser: {
         type: User,
@@ -117,13 +117,60 @@ const schema = new GraphQLSchema({
           dto: { type: new GraphQLNonNull(changeUserInput) },
         },
         resolve: async (_, { id, dto }, { prisma }) =>
-          prisma.user.update({ where: id, data: dto }),
+          prisma.user.update({ where: { id }, data: dto }),
       },
-      // deleteUser: {},
-      // deletePost: {},
-      // deleteProfile: {},
-      // subscribeTo: {},
-      // unsubscribeFrom: {},
+      deleteUser: {
+        type: GraphQLString,
+        args: {
+          id: { type: new GraphQLNonNull(UUIDType) },
+        },
+        resolve: async (_, { id }, { prisma }) => {
+          await prisma.user.delete({ where: { id } });
+          return 'User deleted successfully';
+        },
+      },
+      deletePost: {
+        type: GraphQLString,
+        args: {
+          id: { type: new GraphQLNonNull(UUIDType) },
+        },
+        resolve: async (_, { id }, { prisma }) => {
+          await prisma.post.delete({ where: { id } });
+          return 'Post deleted successfully';
+        },
+      },
+      deleteProfile: {
+        type: GraphQLString,
+        args: {
+          id: { type: new GraphQLNonNull(UUIDType) },
+        },
+        resolve: async (_, { id }, { prisma }) => {
+          await prisma.profile.delete({ where: { id } });
+          return 'Profile deleted successfully';
+        },
+      },
+      subscribeTo: {
+        type: GraphQLString,
+        args: {
+          userId: { type: new GraphQLNonNull(UUIDType) },
+          authorId: { type: new GraphQLNonNull(UUIDType) },
+        },
+        resolve: async (_, { userId, authorId }, { prisma }) =>
+          prisma.subscribersOnAuthors.create({
+            data: { subscriberId: userId, authorId },
+          }),
+      },
+      unsubscribeFrom: {
+        type: GraphQLString,
+        args: {
+          userId: { type: new GraphQLNonNull(UUIDType) },
+          authorId: { type: new GraphQLNonNull(UUIDType) },
+        },
+        resolve: async (_, { userId, authorId }, { prisma }) =>
+          prisma.subscribersOnAuthors.delete({
+            where: { subscriberId_authorId: { subscriberId: userId, authorId } },
+          }),
+      },
     },
   }),
 });
