@@ -4,8 +4,8 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
 } from 'graphql/index.js';
-import { UUIDType } from './uuid.js';
-import { MemberType, MemberTypeId } from './member.type.js';
+import { UUIDType } from './uuid.ts';
+import { MemberType, MemberTypeId } from './member.type.ts';
 import { GraphQLInputObjectType } from 'graphql';
 
 export const Profile = new GraphQLObjectType({

@@ -4,7 +4,7 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
 } from 'graphql';
-import { GraphQLInt } from 'graphql/index.js';
+import { GraphQLInt } from 'graphql/index.ts';
 
 export const MemberTypeId = new GraphQLEnumType({
   name: 'MemberTypeId',
