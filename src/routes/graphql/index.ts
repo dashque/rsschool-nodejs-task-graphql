@@ -4,6 +4,7 @@ import { graphql, GraphQLSchema, parse, validate } from 'graphql';
 import depthLimit from 'graphql-depth-limit';
 import { Root } from './types/root.type.js';
 import { Mutation } from './types/mutations.type.js';
+import { createLoaders } from './loaders.js';
 
 const schema = new GraphQLSchema({
   query: Root,
@@ -25,6 +26,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async handler(req) {
       const { query, variables } = req.body;
 
+      const loaders = createLoaders(prisma);
+
       const validationErrors = validate(schema, parse(query), [depthLimit(5)]);
       if (validationErrors.length) {
         return { data: null, errors: validationErrors };
@@ -34,7 +37,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema,
         source: query,
         variableValues: variables,
-        contextValue: { prisma },
+        contextValue: { prisma, loaders },
       });
     },
   });
