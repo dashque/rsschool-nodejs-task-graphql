@@ -1,9 +1,9 @@
 import {
   GraphQLFloat,
+  GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLInputObjectType,
   GraphQLString,
 } from 'graphql';
 import { UUIDType } from './uuid.js';

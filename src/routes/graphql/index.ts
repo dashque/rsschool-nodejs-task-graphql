@@ -1,19 +1,12 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema } from './schemas.js';
-import {
-  graphql,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLSchema,
-} from 'graphql';
+import { graphql, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLSchema, } from 'graphql';
 import { MemberType, MemberTypeId } from './types/member.type.js';
 import { changeUserInput, createUserInput, User } from './types/user.type.js';
-import { createPostInput, Post } from './types/post.type.js';
+import { changePostInput, createPostInput, Post } from './types/post.type.js';
 import { changeProfileInput, createProfileInput, Profile } from './types/profile.type.js';
 import { UUIDType } from './types/uuid.js';
 
-let changePostInput;
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',
@@ -71,7 +64,7 @@ const schema = new GraphQLSchema({
   }),
   mutation: new GraphQLObjectType({
     name: 'Mutations',
-    fields: () => ({
+    fields: {
       createUser: {
         type: User,
         args: {
@@ -120,12 +113,12 @@ const schema = new GraphQLSchema({
         resolve: async (_, { id, dto }, ctx) =>
           ctx.prisma.user.update({ where: id, data: dto }),
       },
-      deleteUser: {},
-      deletePost: {},
-      deleteProfile: {},
-      subscribeTo: {},
-      unsubscribeFrom: {},
-    }),
+      // deleteUser: {},
+      // deletePost: {},
+      // deleteProfile: {},
+      // subscribeTo: {},
+      // unsubscribeFrom: {},
+    },
   }),
 });
 
