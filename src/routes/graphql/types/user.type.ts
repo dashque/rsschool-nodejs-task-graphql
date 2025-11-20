@@ -43,7 +43,7 @@ export const User = new GraphQLObjectType({
           where: { subscriberId: source.id },
           include: { author: true },
         });
-        return subscriptions.map(sub => sub.author);
+        return subscriptions.map((sub) => sub.author);
       },
     },
     subscribedToUser: {
@@ -53,8 +53,21 @@ export const User = new GraphQLObjectType({
           where: { authorId: source.id },
           include: { subscriber: true },
         });
-        return subscribers.map(sub => sub.subscriber);
+        return subscribers.map((sub) => sub.subscriber);
       },
     },
+  }),
+});
+
+export const ChangeUserInput = new GraphQLObjectType({
+  name: 'ChangeUserInput',
+  fields: () => ({ name: { type: GraphQLString }, balance: { type: GraphQLFloat } }),
+});
+
+export const createUserInput = new GraphQLObjectType({
+  name: 'CreateUserInput',
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
   }),
 });
