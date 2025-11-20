@@ -59,7 +59,7 @@ export const User = new GraphQLObjectType({
   }),
 });
 
-export const ChangeUserInput = new GraphQLObjectType({
+export const changeUserInput = new GraphQLObjectType({
   name: 'ChangeUserInput',
   fields: () => ({ name: { type: GraphQLString }, balance: { type: GraphQLFloat } }),
 });

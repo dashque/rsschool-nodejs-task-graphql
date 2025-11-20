@@ -27,7 +27,7 @@ export const Profile = new GraphQLObjectType({
   }),
 });
 
-export const ChangeProfileInput = new GraphQLObjectType({
+export const changeProfileInput = new GraphQLObjectType({
   name: 'ChangeProfileInput',
   fields: () => ({
     isMale: { type: GraphQLBoolean },
