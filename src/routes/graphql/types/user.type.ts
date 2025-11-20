@@ -18,9 +18,9 @@ export const User = new GraphQLObjectType({
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
       type: Profile,
-      resolve: async ({ id }, _, { prisma }) => {
-        const user = await prisma.user.findUnique({
-          where: { id },
+      resolve: async (source, _, ctx) => {
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: source.id },
           include: { profile: true },
         });
 
@@ -29,9 +29,9 @@ export const User = new GraphQLObjectType({
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(Post)),
-      resolve: async ({ id }, _, { prisma }) => {
-        const user = await prisma.user.findUnique({
-          where: { id },
+      resolve: async (source, _, ctx) => {
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: source.id },
           include: { posts: true },
         });
         return user?.posts || [];
@@ -39,9 +39,9 @@ export const User = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ id }, _, { prisma }) => {
-        const subscriptions = await prisma.subscribersOnAuthors.findMany({
-          where: { subscriberId: id },
+      resolve: async (source, _, ctx) => {
+        const subscriptions = await ctx.prisma.subscribersOnAuthors.findMany({
+          where: { subscriberId: source.id },
           include: { author: true },
         });
         return subscriptions.map((sub) => sub.author);
@@ -49,9 +49,9 @@ export const User = new GraphQLObjectType({
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ id }, _, { prisma }) => {
-        const subscribers = await prisma.subscribersOnAuthors.findMany({
-          where: { authorId: id },
+      resolve: async (source, _, ctx) => {
+        const subscribers = await ctx.prisma.subscribersOnAuthors.findMany({
+          where: { authorId: source.id },
           include: { subscriber: true },
         });
         return subscribers.map((sub) => sub.subscriber);
