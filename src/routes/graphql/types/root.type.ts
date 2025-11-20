@@ -10,50 +10,48 @@ export const Root = new GraphQLObjectType({
   fields: {
     memberTypes: {
       type: new GraphQLNonNull(new GraphQLList(MemberType)),
-      resolve: async (source, _, { prisma }) => prisma.memberType.findMany(),
+      resolve: async (_, __, { prisma }) => prisma.memberType.findMany(),
     },
     memberType: {
       type: MemberType,
       args: {
         id: { type: new GraphQLNonNull(MemberTypeId) },
       },
-      resolve: async (source, { id }, { prisma }) =>
+      resolve: async (_, { id }, { prisma }) =>
         prisma.memberType.findUnique({ where: { id } }),
     },
     users: {
       type: new GraphQLNonNull(new GraphQLList(User)),
-      resolve: async (source, _, { prisma }) => prisma.user.findMany(),
+      resolve: async (_, __, { prisma }) => prisma.user.findMany(),
     },
     user: {
       type: User,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (source, { id }, { prisma }) =>
-        prisma.user.findUnique({ where: { id } }),
+      resolve: async (_, { id }, { prisma }) => prisma.user.findUnique({ where: { id } }),
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(Post)),
-      resolve: async (source, _, { prisma }) => prisma.post.findMany(),
+      resolve: async (_, __, { prisma }) => prisma.post.findMany(),
     },
     post: {
       type: Post,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (source, { id }, { prisma }) =>
-        prisma.post.findUnique({ where: { id } }),
+      resolve: async (_, { id }, { prisma }) => prisma.post.findUnique({ where: { id } }),
     },
     profiles: {
       type: new GraphQLNonNull(new GraphQLList(Profile)),
-      resolve: async (source, _, { prisma }) => prisma.profile.findMany(),
+      resolve: async (_, __, { prisma }) => prisma.profile.findMany(),
     },
     profile: {
       type: Profile,
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (source, { id }, { prisma }) =>
+      resolve: async (_, { id }, { prisma }) =>
         prisma.profile.findUnique({ where: { id } }),
     },
   },
