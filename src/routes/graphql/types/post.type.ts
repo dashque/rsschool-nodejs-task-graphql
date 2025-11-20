@@ -3,8 +3,8 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
-} from 'graphql/index.ts';
-import { UUIDType } from './uuid.ts';
+} from 'graphql';
+import { UUIDType } from './uuid.js';
 
 export const Post = new GraphQLObjectType({
   name: 'Post',

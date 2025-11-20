@@ -7,7 +7,6 @@
     "sourceMap": true,
     "moduleResolution": "nodenext",
     "module": "NodeNext",
-    "allowImportingTsExtensions": true,
   },
   "include": ["src/**/*.ts"],
 }

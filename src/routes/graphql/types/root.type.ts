@@ -1,9 +1,9 @@
-import { GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql/index.d.ts';
-import { MemberType, MemberTypeId } from './member.type.ts';
-import { User } from './user.type.ts';
-import { UUIDType } from './uuid.ts';
-import { Post } from './post.type.ts';
-import { Profile } from './profile.type.ts';
+import { GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql';
+import { MemberType, MemberTypeId } from './member.type.js';
+import { User } from './user.type.js';
+import { UUIDType } from './uuid.js';
+import { Post } from './post.type.js';
+import { Profile } from './profile.type.js';
 
 export const Root = new GraphQLObjectType({
   name: 'RootQueryType',

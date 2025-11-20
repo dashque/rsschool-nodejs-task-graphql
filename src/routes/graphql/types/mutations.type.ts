@@ -1,8 +1,8 @@
-import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql/index.d.ts';
-import { changeUserInput, createUserInput, User } from './user.type.ts';
-import { changeProfileInput, createProfileInput, Profile } from './profile.type.ts';
-import { changePostInput, createPostInput, Post } from './post.type.ts';
-import { UUIDType } from './uuid.ts';
+import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import { changeUserInput, createUserInput, User } from './user.type.js';
+import { changeProfileInput, createProfileInput, Profile } from './profile.type.js';
+import { changePostInput, createPostInput, Post } from './post.type.js';
+import { UUIDType } from './uuid.js';
 
 export const Mutation = new GraphQLObjectType({
   name: 'Mutations',

@@ -1,9 +1,9 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { createGqlResponseSchema, gqlResponseSchema } from './schemas.ts';
+import { createGqlResponseSchema, gqlResponseSchema } from './schemas.js';
 import { graphql, GraphQLSchema, parse, validate } from 'graphql';
 import depthLimit from 'graphql-depth-limit';
-import { Root } from './types/root.type.ts';
-import { Mutation } from './types/mutations.type.ts';
+import { Root } from './types/root.type.js';
+import { Mutation } from './types/mutations.type.js';
 
 const schema = new GraphQLSchema({
   query: Root,
