@@ -155,10 +155,12 @@ const schema = new GraphQLSchema({
           userId: { type: new GraphQLNonNull(UUIDType) },
           authorId: { type: new GraphQLNonNull(UUIDType) },
         },
-        resolve: async (_, { userId, authorId }, { prisma }) =>
-          prisma.subscribersOnAuthors.create({
+        resolve: async (_, { userId, authorId }, { prisma }) => {
+          await prisma.subscribersOnAuthors.create({
             data: { subscriberId: userId, authorId },
-          }),
+          });
+          return 'Subscribed successfully';
+        },
       },
       unsubscribeFrom: {
         type: GraphQLString,
@@ -166,10 +168,12 @@ const schema = new GraphQLSchema({
           userId: { type: new GraphQLNonNull(UUIDType) },
           authorId: { type: new GraphQLNonNull(UUIDType) },
         },
-        resolve: async (_, { userId, authorId }, { prisma }) =>
-          prisma.subscribersOnAuthors.delete({
+        resolve: async (_, { userId, authorId }, { prisma }) => {
+          await prisma.subscribersOnAuthors.delete({
             where: { subscriberId_authorId: { subscriberId: userId, authorId } },
-          }),
+          });
+          return 'Unsubscribed successfully';
+        },
       },
     },
   }),
