@@ -15,9 +15,9 @@ export const Profile = new GraphQLObjectType({
     yearOfBirth: { type: new GraphQLNonNull(GraphQLInt) },
     memberType: {
       type: new GraphQLNonNull(MemberType),
-      resolve: async (parent, _, ctx) => {
-        const profile = await ctx.prisma.profile.findUnique({
-          where: { id: parent.id },
+      resolve: async ({ id }, _, { prisma }) => {
+        const profile = await prisma.profile.findUnique({
+          where: { id },
           include: { memberType: true },
         });
 
