@@ -5,10 +5,6 @@ export const createLoaders = (prisma: PrismaClient) => ({
   userLoader: new DataLoader(async (ids: readonly string[]) => {
     const users = await prisma.user.findMany({
       where: { id: { in: [...ids] } },
-      include: {
-        userSubscribedTo: true,
-        subscribedToUser: true,
-      },
     });
 
     const userMap = new Map(users.map((user) => [user.id, user]));
@@ -27,11 +23,19 @@ export const createLoaders = (prisma: PrismaClient) => ({
   profileLoader: new DataLoader(async (ids: readonly string[]) => {
     const profiles = await prisma.profile.findMany({
       where: { id: { in: [...ids] } },
-      include: { memberType: true },
     });
 
     const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
     return ids.map((id) => profileMap.get(id) || null);
+  }),
+
+  // Load Profile by userId (used by User.profile resolver)
+  profileByUserIdLoader: new DataLoader(async (userIds: readonly string[]) => {
+    const profiles = await prisma.profile.findMany({
+      where: { userId: { in: [...userIds] } },
+    });
+    const map = new Map(profiles.map((p) => [p.userId, p]));
+    return userIds.map((uid) => map.get(uid) || null);
   }),
 
   memberTypeLoader: new DataLoader(async (ids: readonly string[]) => {

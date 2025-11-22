@@ -19,11 +19,11 @@ export const User = new GraphQLObjectType({
     profile: {
       type: Profile,
       resolve: async ({ id }, _, { loaders }) => {
-        return loaders.profileLoader.load(id);
+        return loaders.profileByUserIdLoader.load(id);
       },
     },
     posts: {
-      type: new GraphQLNonNull(new GraphQLList(Post)),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Post))),
       resolve: async ({ id }, _, { loaders }) => {
         return loaders.userPostsLoader.load(id);
       },
