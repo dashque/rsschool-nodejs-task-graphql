@@ -9,14 +9,8 @@ import {
 import { UUIDType } from './uuid.js';
 import { Post } from './post.type.js';
 import { Profile } from './profile.type.js';
-
-type MinimalUser = { id: string };
-type UserSubscribedToJoin = { authorId: string };
-type UserSubscribersJoin = { subscriberId: string };
-type UserParent = MinimalUser & {
-  userSubscribedTo?: readonly (MinimalUser | UserSubscribedToJoin)[];
-  subscribedToUser?: readonly (MinimalUser | UserSubscribersJoin)[];
-};
+import { normalizePreloadedRelation } from '../utils/utils.js';
+import { UserParent } from './types.js';
 
 export const User = new GraphQLObjectType({
   name: 'User',
@@ -39,46 +33,22 @@ export const User = new GraphQLObjectType({
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (parent: UserParent, _args, { loaders }) => {
-        const pre = parent.userSubscribedTo;
-        if (Array.isArray(pre)) {
-          if (pre.length === 0) return [] as MinimalUser[];
-          const first = pre[0];
-          if (
-            typeof (first as MinimalUser).id === 'string' &&
-            !('authorId' in (first as UserSubscribedToJoin))
-          ) {
-            return pre as MinimalUser[];
-          }
-          if ('authorId' in (first as UserSubscribedToJoin)) {
-            return (pre as readonly UserSubscribedToJoin[]).map((r) => ({
-              id: r.authorId,
-            }));
-          }
-          return [] as MinimalUser[];
-        }
+        const normalized = normalizePreloadedRelation(
+          parent.userSubscribedTo,
+          'authorId',
+        );
+        if (normalized) return normalized;
         return loaders.userSubscribedToLoader.load(parent.id);
       },
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (parent: UserParent, _args, { loaders }) => {
-        const pre = parent.subscribedToUser;
-        if (Array.isArray(pre)) {
-          if (pre.length === 0) return [] as MinimalUser[];
-          const first = pre[0];
-          if (
-            typeof (first as MinimalUser).id === 'string' &&
-            !('subscriberId' in (first as UserSubscribersJoin))
-          ) {
-            return pre as MinimalUser[];
-          }
-          if ('subscriberId' in (first as UserSubscribersJoin)) {
-            return (pre as readonly UserSubscribersJoin[]).map((r) => ({
-              id: r.subscriberId,
-            }));
-          }
-          return [] as MinimalUser[];
-        }
+        const normalized = normalizePreloadedRelation(
+          parent.subscribedToUser,
+          'subscriberId',
+        );
+        if (normalized) return normalized;
         return loaders.userSubscribersLoader.load(parent.id);
       },
     },

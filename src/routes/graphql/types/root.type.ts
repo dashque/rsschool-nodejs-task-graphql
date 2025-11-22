@@ -1,15 +1,11 @@
-import {
-  type FieldNode,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  type SelectionNode,
-} from 'graphql';
+import { type FieldNode, GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql';
 import { MemberType, MemberTypeId } from './member.type.js';
 import { User } from './user.type.js';
 import { UUIDType } from './uuid.js';
 import { Post } from './post.type.js';
 import { Profile } from './profile.type.js';
+import { isFieldNode } from '../utils/utils.js';
+import { UsersInclude } from './types.js';
 
 export const Root = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -30,21 +26,16 @@ export const Root = new GraphQLObjectType({
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (_, __, { prisma, loaders }, info) => {
         const node = info.fieldNodes?.[0] as FieldNode | undefined;
-        const selections: readonly SelectionNode[] = node?.selectionSet?.selections ?? [];
-        const names = new Set(
-          selections
-            .filter((s): s is FieldNode => s.kind === 'Field' && Boolean(s.name?.value))
-            .map((s) => s.name.value),
-        );
-        const wantsUserSubscribedTo = names.has('userSubscribedTo');
-        const wantsSubscribedToUser = names.has('subscribedToUser');
+        const selections = node?.selectionSet?.selections ?? [];
+        const names = new Set(selections.filter(isFieldNode).map((s) => s.name.value));
 
-        type UsersInclude = Partial<
-          Record<'userSubscribedTo' | 'subscribedToUser', true>
-        >;
         const include: UsersInclude = {};
-        if (wantsUserSubscribedTo) include.userSubscribedTo = true;
-        if (wantsSubscribedToUser) include.subscribedToUser = true;
+        if (names.has('userSubscribedTo')) {
+          include.userSubscribedTo = true;
+        }
+        if (names.has('subscribedToUser')) {
+          include.subscribedToUser = true;
+        }
 
         const users = await prisma.user.findMany({
           include: Object.keys(include).length ? include : undefined,
