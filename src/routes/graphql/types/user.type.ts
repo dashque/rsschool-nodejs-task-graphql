@@ -32,28 +32,22 @@ export const User = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent: UserParent, _args, { loaders }) => {
-        const normalized = normalizePreloadedRelation(
-          parent.userSubscribedTo,
-          'authorId',
-        );
+      resolve: async ({ userSubscribedTo, id }: UserParent, _args, { loaders }) => {
+        const normalized = normalizePreloadedRelation(userSubscribedTo, 'authorId');
         if (normalized) {
           return normalized;
         }
-        return loaders.userSubscribedToLoader.load(parent.id);
+        return loaders.userSubscribedToLoader.load(id);
       },
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent: UserParent, _args, { loaders }) => {
-        const normalized = normalizePreloadedRelation(
-          parent.subscribedToUser,
-          'subscriberId',
-        );
+      resolve: async ({ subscribedToUser, id }: UserParent, _args, { loaders }) => {
+        const normalized = normalizePreloadedRelation(subscribedToUser, 'subscriberId');
         if (normalized) {
           return normalized;
         }
-        return loaders.userSubscribersLoader.load(parent.id);
+        return loaders.userSubscribersLoader.load(id);
       },
     },
   }),
