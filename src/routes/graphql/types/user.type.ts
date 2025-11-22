@@ -30,14 +30,41 @@ export const User = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ id }, _, { loaders }) => {
-        return loaders.userSubscribedToLoader.load(id);
+      resolve: async (parent, _, { loaders }) => {
+        // Reuse preloaded relation from Root.users include if available
+        const pre = (parent as any).userSubscribedTo;
+        if (Array.isArray(pre)) {
+          if (pre.length === 0) return pre;
+          const first = pre[0] as any;
+          // If already Users
+          if (typeof first?.id === 'string' && !('authorId' in first)) {
+            return pre;
+          }
+          // If join rows (SubscribersOnAuthors), map to minimal User stubs
+          if (typeof first?.authorId === 'string') {
+            return pre.map((r: any) => ({ id: r.authorId }));
+          }
+          return pre;
+        }
+        return loaders.userSubscribedToLoader.load((parent as any).id);
       },
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ id }, _, { loaders }) => {
-        return loaders.userSubscribersLoader.load(id);
+      resolve: async (parent, _, { loaders }) => {
+        const pre = (parent as any).subscribedToUser;
+        if (Array.isArray(pre)) {
+          if (pre.length === 0) return pre;
+          const first = pre[0] as any;
+          if (typeof first?.id === 'string' && !('subscriberId' in first)) {
+            return pre;
+          }
+          if (typeof first?.subscriberId === 'string') {
+            return pre.map((r: any) => ({ id: r.subscriberId }));
+          }
+          return pre;
+        }
+        return loaders.userSubscribersLoader.load((parent as any).id);
       },
     },
   }),

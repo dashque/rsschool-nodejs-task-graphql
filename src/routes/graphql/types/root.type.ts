@@ -24,42 +24,30 @@ export const Root = new GraphQLObjectType({
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (_, __, { prisma, loaders }, info) => {
-        const parsed: any = parseResolveInfo(info);
-        let needsSubs = false;
-        try {
-          const userSelections =
-            parsed?.fieldsByTypeName?.RootQueryType?.users?.fieldsByTypeName?.User;
-          needsSubs = Boolean(
-            userSelections?.userSubscribedTo || userSelections?.subscribedToUser,
-          );
-        } catch {
-          needsSubs = false;
-        }
-
-        const users = await prisma.user.findMany(
-          needsSubs
-            ? {
-                include: {
-                  userSubscribedTo: { include: { author: true } },
-                  subscribedToUser: { include: { subscriber: true } },
-                },
-              }
-            : undefined,
+        // Prefer direct AST inspection for reliability in tests
+        const node = info.fieldNodes?.[0];
+        const selections = (node && node.selectionSet && node.selectionSet.selections) || [];
+        const names = new Set(
+          selections
+            .filter((s: any) => s.kind === 'Field' && s.name && s.name.value)
+            .map((s: any) => s.name.value),
         );
+        const wantsUserSubscribedTo = names.has('userSubscribedTo');
+        const wantsSubscribedToUser = names.has('subscribedToUser');
+
+        const include: any = {};
+        if (wantsUserSubscribedTo) include.userSubscribedTo = true;
+        if (wantsSubscribedToUser) include.subscribedToUser = true;
+
+        const users = await prisma.user.findMany({
+          include: Object.keys(include).length ? include : undefined,
+        });
 
         for (const u of users) {
           loaders.userLoader.clear(u.id).prime(u.id, u);
         }
 
-        if (needsSubs) {
-          for (const u of users) {
-            const authors = u.userSubscribedTo?.map((x: any) => x.author) ?? [];
-            const subscribers = u.subscribedToUser?.map((x: any) => x.subscriber) ?? [];
-            loaders.userSubscribedToLoader.clear(u.id).prime(u.id, authors);
-            loaders.userSubscribersLoader.clear(u.id).prime(u.id, subscribers);
-          }
-        }
-
+        // Do not prime relation loaders here; field resolvers will reuse the preloaded arrays
         return users;
       },
     },
