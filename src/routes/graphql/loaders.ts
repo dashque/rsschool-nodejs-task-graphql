@@ -29,7 +29,6 @@ export const createLoaders = (prisma: PrismaClient) => ({
     return ids.map((id) => profileMap.get(id) || null);
   }),
 
-  // Load Profile by userId (used by User.profile resolver)
   profileByUserIdLoader: new DataLoader(async (userIds: readonly string[]) => {
     const profiles = await prisma.profile.findMany({
       where: { userId: { in: [...userIds] } },

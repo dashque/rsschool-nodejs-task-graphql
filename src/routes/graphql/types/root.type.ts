@@ -24,12 +24,11 @@ export const Root = new GraphQLObjectType({
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (_, __, { prisma, loaders }, info) => {
-        // Detect whether userSubscribedTo or subscribedToUser are requested
         const parsed: any = parseResolveInfo(info);
         let needsSubs = false;
         try {
-          // parsed.fieldsByTypeName.RootQueryType.users.fieldsByTypeName.User
-          const userSelections = parsed?.fieldsByTypeName?.RootQueryType?.users?.fieldsByTypeName?.User;
+          const userSelections =
+            parsed?.fieldsByTypeName?.RootQueryType?.users?.fieldsByTypeName?.User;
           needsSubs = Boolean(
             userSelections?.userSubscribedTo || userSelections?.subscribedToUser,
           );
@@ -48,15 +47,14 @@ export const Root = new GraphQLObjectType({
             : undefined,
         );
 
-        // Prime base user cache
         for (const u of users) {
           loaders.userLoader.clear(u.id).prime(u.id, u);
         }
 
         if (needsSubs) {
           for (const u of users) {
-            const authors = (u as any).userSubscribedTo?.map((x: any) => x.author) ?? [];
-            const subscribers = (u as any).subscribedToUser?.map((x: any) => x.subscriber) ?? [];
+            const authors = u.userSubscribedTo?.map((x: any) => x.author) ?? [];
+            const subscribers = u.subscribedToUser?.map((x: any) => x.subscriber) ?? [];
             loaders.userSubscribedToLoader.clear(u.id).prime(u.id, authors);
             loaders.userSubscribersLoader.clear(u.id).prime(u.id, subscribers);
           }

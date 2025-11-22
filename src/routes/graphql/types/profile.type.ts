@@ -17,7 +17,6 @@ export const Profile = new GraphQLObjectType({
     memberType: {
       type: new GraphQLNonNull(MemberType),
       resolve: async (parent, _, { loaders }) => {
-        // parent has memberTypeId; resolve via DataLoader to avoid N+1
         return loaders.memberTypeLoader.load(parent.memberTypeId);
       },
     },
