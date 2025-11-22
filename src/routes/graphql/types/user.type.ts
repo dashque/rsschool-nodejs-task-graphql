@@ -20,19 +20,19 @@ export const User = new GraphQLObjectType({
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
       type: Profile,
-      resolve: async ({ id }: { id: string }, _args, { loaders }) => {
+      resolve: async ({ id }: { id: string }, __, { loaders }) => {
         return loaders.profileByUserIdLoader.load(id);
       },
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Post))),
-      resolve: async ({ id }: { id: string }, _args, { loaders }) => {
+      resolve: async ({ id }: { id: string }, __, { loaders }) => {
         return loaders.userPostsLoader.load(id);
       },
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ userSubscribedTo, id }: UserParent, _args, { loaders }) => {
+      resolve: async ({ userSubscribedTo, id }: UserParent, __, { loaders }) => {
         const normalized = normalizePreloadedRelation(userSubscribedTo, 'authorId');
         if (normalized) {
           return normalized;
@@ -42,7 +42,7 @@ export const User = new GraphQLObjectType({
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async ({ subscribedToUser, id }: UserParent, _args, { loaders }) => {
+      resolve: async ({ subscribedToUser, id }: UserParent, __, { loaders }) => {
         const normalized = normalizePreloadedRelation(subscribedToUser, 'subscriberId');
         if (normalized) {
           return normalized;
