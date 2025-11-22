@@ -78,5 +78,3 @@ export const createLoaders = (prisma: PrismaClient) => ({
     );
   }),
 });
-
-export type Loaders = ReturnType<typeof createLoaders>;
