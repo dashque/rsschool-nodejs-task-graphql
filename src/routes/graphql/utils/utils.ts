@@ -7,9 +7,13 @@ export const isFieldNode = (node: SelectionNode): node is FieldNode =>
 export const normalizePreloadedRelation = <K extends string>(
   pre: readonly (MinimalUser | Record<K, string>)[] | undefined,
   joinKey: K,
-): MinimalUser[] | undefined => {
-  if (!Array.isArray(pre)) return undefined;
-  if (pre.length === 0) return [];
+) => {
+  if (!Array.isArray(pre)) {
+    return undefined;
+  }
+  if (pre.length === 0) {
+    return [];
+  }
 
   const first = pre[0];
 

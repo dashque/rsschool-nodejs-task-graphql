@@ -37,7 +37,9 @@ export const User = new GraphQLObjectType({
           parent.userSubscribedTo,
           'authorId',
         );
-        if (normalized) return normalized;
+        if (normalized) {
+          return normalized;
+        }
         return loaders.userSubscribedToLoader.load(parent.id);
       },
     },
@@ -48,7 +50,9 @@ export const User = new GraphQLObjectType({
           parent.subscribedToUser,
           'subscriberId',
         );
-        if (normalized) return normalized;
+        if (normalized) {
+          return normalized;
+        }
         return loaders.userSubscribersLoader.load(parent.id);
       },
     },
