@@ -10,6 +10,14 @@ import { UUIDType } from './uuid.js';
 import { Post } from './post.type.js';
 import { Profile } from './profile.type.js';
 
+type MinimalUser = { id: string };
+type UserSubscribedToJoin = { authorId: string };
+type UserSubscribersJoin = { subscriberId: string };
+type UserParent = MinimalUser & {
+  userSubscribedTo?: readonly (MinimalUser | UserSubscribedToJoin)[];
+  subscribedToUser?: readonly (MinimalUser | UserSubscribersJoin)[];
+};
+
 export const User = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
@@ -18,53 +26,60 @@ export const User = new GraphQLObjectType({
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
       type: Profile,
-      resolve: async ({ id }, _, { loaders }) => {
+      resolve: async ({ id }: { id: string }, _args, { loaders }) => {
         return loaders.profileByUserIdLoader.load(id);
       },
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Post))),
-      resolve: async ({ id }, _, { loaders }) => {
+      resolve: async ({ id }: { id: string }, _args, { loaders }) => {
         return loaders.userPostsLoader.load(id);
       },
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _, { loaders }) => {
-        // Reuse preloaded relation from Root.users include if available
-        const pre = (parent as any).userSubscribedTo;
+      resolve: async (parent: UserParent, _args, { loaders }) => {
+        const pre = parent.userSubscribedTo;
         if (Array.isArray(pre)) {
-          if (pre.length === 0) return pre;
-          const first = pre[0] as any;
-          // If already Users
-          if (typeof first?.id === 'string' && !('authorId' in first)) {
-            return pre;
+          if (pre.length === 0) return [] as MinimalUser[];
+          const first = pre[0];
+          if (
+            typeof (first as MinimalUser).id === 'string' &&
+            !('authorId' in (first as UserSubscribedToJoin))
+          ) {
+            return pre as MinimalUser[];
           }
-          // If join rows (SubscribersOnAuthors), map to minimal User stubs
-          if (typeof first?.authorId === 'string') {
-            return pre.map((r: any) => ({ id: r.authorId }));
+          if ('authorId' in (first as UserSubscribedToJoin)) {
+            return (pre as readonly UserSubscribedToJoin[]).map((r) => ({
+              id: r.authorId,
+            }));
           }
-          return pre;
+          return [] as MinimalUser[];
         }
-        return loaders.userSubscribedToLoader.load((parent as any).id);
+        return loaders.userSubscribedToLoader.load(parent.id);
       },
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _, { loaders }) => {
-        const pre = (parent as any).subscribedToUser;
+      resolve: async (parent: UserParent, _args, { loaders }) => {
+        const pre = parent.subscribedToUser;
         if (Array.isArray(pre)) {
-          if (pre.length === 0) return pre;
-          const first = pre[0] as any;
-          if (typeof first?.id === 'string' && !('subscriberId' in first)) {
-            return pre;
+          if (pre.length === 0) return [] as MinimalUser[];
+          const first = pre[0];
+          if (
+            typeof (first as MinimalUser).id === 'string' &&
+            !('subscriberId' in (first as UserSubscribersJoin))
+          ) {
+            return pre as MinimalUser[];
           }
-          if (typeof first?.subscriberId === 'string') {
-            return pre.map((r: any) => ({ id: r.subscriberId }));
+          if ('subscriberId' in (first as UserSubscribersJoin)) {
+            return (pre as readonly UserSubscribersJoin[]).map((r) => ({
+              id: r.subscriberId,
+            }));
           }
-          return pre;
+          return [] as MinimalUser[];
         }
-        return loaders.userSubscribersLoader.load((parent as any).id);
+        return loaders.userSubscribersLoader.load(parent.id);
       },
     },
   }),

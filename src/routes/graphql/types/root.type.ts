@@ -1,5 +1,10 @@
-import { GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql';
-import { parseResolveInfo } from 'graphql-parse-resolve-info';
+import {
+  type FieldNode,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  type SelectionNode,
+} from 'graphql';
 import { MemberType, MemberTypeId } from './member.type.js';
 import { User } from './user.type.js';
 import { UUIDType } from './uuid.js';
@@ -24,18 +29,20 @@ export const Root = new GraphQLObjectType({
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
       resolve: async (_, __, { prisma, loaders }, info) => {
-        // Prefer direct AST inspection for reliability in tests
-        const node = info.fieldNodes?.[0];
-        const selections = (node && node.selectionSet && node.selectionSet.selections) || [];
+        const node = info.fieldNodes?.[0] as FieldNode | undefined;
+        const selections: readonly SelectionNode[] = node?.selectionSet?.selections ?? [];
         const names = new Set(
           selections
-            .filter((s: any) => s.kind === 'Field' && s.name && s.name.value)
-            .map((s: any) => s.name.value),
+            .filter((s): s is FieldNode => s.kind === 'Field' && Boolean(s.name?.value))
+            .map((s) => s.name.value),
         );
         const wantsUserSubscribedTo = names.has('userSubscribedTo');
         const wantsSubscribedToUser = names.has('subscribedToUser');
 
-        const include: any = {};
+        type UsersInclude = Partial<
+          Record<'userSubscribedTo' | 'subscribedToUser', true>
+        >;
+        const include: UsersInclude = {};
         if (wantsUserSubscribedTo) include.userSubscribedTo = true;
         if (wantsSubscribedToUser) include.subscribedToUser = true;
 
@@ -47,7 +54,6 @@ export const Root = new GraphQLObjectType({
           loaders.userLoader.clear(u.id).prime(u.id, u);
         }
 
-        // Do not prime relation loaders here; field resolvers will reuse the preloaded arrays
         return users;
       },
     },
